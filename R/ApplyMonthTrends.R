@@ -75,14 +75,21 @@ for (index in seq(1:length(AgentNumbers))){
   #Make a look up table of climate change offset to 2048 c/o the values from Figure 2.2. in Bright(2011) converted to a 30 year shift
   #GCCAdjustLookup <-data.frame(month=seq(1,12,1),Adjust=c(3.9,2.1,1.8,1.5,0.6,0,0.3,0.6,1.8,2.1,2.4,3.3)/c(31,28,31,30,31,30,31,31,30,31,30,31)) #These values are for 30 years i.e. to 2046
   GCCAdjustLookup <-data.frame(month=seq(1,12,1),Adjust=c(4.16,2.24,1.92,1.6,0.64,0,0.32,0.64,1.92,2.24,2.56,3.52)/c(31,28,31,30,31,30,31,31,30,31,30,31)) #These values are for 32 years, i.e. to 2048
+  #Determine how much the Bright(2011) numbers need scaling to match the MfE 2016 PED projections
+  #The MfE2016 PED increase is ~ 60 mm for RCP8.5 (for Canterbury Plains, from Figure 54). This is for 45 years (from 1986-2005 to 1931-1950)
+  #So for the 32 year projection from 2019 to 1951:
+  BrightToMFE2016Scale <- (60/45*32)/sum(c(4.16,2.24,1.92,1.6,0.64,0,0.32,0.64,1.92,2.24,2.56,3.52))
   
-  GCCAdjusts <- merge(y=GCCAdjustLookup,x=daymonths, by='month')                               #combine the lookup table to the daily data
-  GCCAdjusts <- GCCAdjusts[order(GCCAdjusts$index),]                                            #get it back into date order
-  GCCModel  <- parameterData[,"DeTrend"] + GCCAdjusts[,"Adjust"]                                            #Add the climate change adjustment to the detrended data
+  GCCAdjustLookup <-data.frame(month=seq(1,12,1),Adjust=BrightToMFE2016Scale*c(4.16,2.24,1.92,1.6,0.64,0,0.32,0.64,1.92,2.24,2.56,3.52)/c(31,28,31,30,31,30,31,31,30,31,30,31)) #These values are for 32 years from 2019, and have been scaled to give the equivalent of 60 mm from 1995 to 2040 (MFE 2016), i.e. to 2051
+  
+  
+  GCCAdjusts <- merge(y=GCCAdjustLookup,x=daymonths, by='month')                              #combine the lookup table to the daily data
+  GCCAdjusts <- GCCAdjusts[order(GCCAdjusts$index),]                                          #get it back into date order
+  GCCModel  <- parameterData[,"DeTrend"] + GCCAdjusts[,"Adjust"]                              #Add the climate change adjustment to the detrended data
   parameterData <- merge(parameterData,GCCModel)                                              #Add it to the zoo
   
   #Add on the Extrapolated changes
-  ExtAdjustLookup <-  data.frame(month=seq(1,12,1),Adjust=MonthTrends[1,]*32)                  #Note that this take it out to 2048
+  ExtAdjustLookup <-  data.frame(month=seq(1,12,1),Adjust=MonthTrends[1,]*32)                  #Note that this take it out to 2051
   ExtAdjusts <- merge(y=ExtAdjustLookup,x=daymonths, by='month')                               #combine the lookup table to the daily data
   ExtAdjusts <- ExtAdjusts[order(ExtAdjusts$index),]                                            #get it back into date order
   Extrapolate  <- parameterData[,"DeTrend"] + ExtAdjusts[,"Adjust"]                                            #Add the climate change adjustment to the detrended data
