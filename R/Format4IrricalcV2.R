@@ -25,6 +25,8 @@ DataDirectory <- ("D:\\Projects\\Aqualinc\\projects\\SDC 2020\\Data") #Copies on
 #scenario <- "DeTrended"
 #scenario <- "GCCModel"
 scenario <- "Extrapolate"
+#scenario <- "StatusQuo"
+if (scenario == "StatusQuo") DataSubdirectory <- DataSubdirectory <- "StationData" else DataSubdirectory <- file.path("AdjustedStationData",scenario)
 
 zoneAgents <- data.frame(zones = 13:19, RainAgents = c(4935,4722,4698,4843,4881,4836,4834),PETAgents=c(37332,4764,4698,4843,4881,17609,17609))
 
@@ -41,10 +43,11 @@ for (zone in 1:7){
   
   #load the data files into R
   PETFileName <- paste0(PETAgentNumber,"_19100101-20190630.csv")
-  PETData <- read.zoo(file.path(DataDirectory,"AdjustedStationData",scenario,"PET",PETFileName),colClasses = c("Date","numeric"),FUN = Date_Format_Fix, drop=FALSE,header=TRUE,sep=",")
+  PETData <- read.zoo(file.path(DataDirectory,DataSubdirectory,"PET",PETFileName),colClasses = c("Date","numeric"),FUN = Date_Format_Fix, drop=FALSE,header=TRUE,sep=",")
   
   RainfallFileName <- paste0(RainfallAgentNumber," extended.csv")
-  RainfallData <- read.zoo(file.path(DataDirectory,"StationData","Rainfall",RainfallFileName),colClasses = c("character",NA,rep("NULL",9)), FUN = Date_Format_Fix,  drop=FALSE,header=TRUE,stringsAsFactors=FALSE,na.strings="",sep=",")
+  RainfallData <- read.zoo(file.path(DataDirectory,"StationData","Rainfall",RainfallFileName),colClasses = c("character","numeric"),quote="", FUN = Date_Format_Fix,  drop=FALSE,header=TRUE,stringsAsFactors=FALSE,na.strings="",sep=",")
+
   #Combine the two sets of data
   Combined <- merge(RainfallData[,1],PETData[,1],all=FALSE)
   
@@ -61,5 +64,5 @@ for (zone in 1:7){
   OutFileName <- paste0(ZoneName,".csv")
   
   #write to file
-  write.table(OutData,file = file.path(DataDirectory,"AdjustedStationData",scenario,"Irricalc",OutFileName),quote=FALSE,col.names=FALSE,row.names=FALSE,sep=",")
+  write.table(OutData,file = file.path(DataDirectory,DataSubdirectory,"Irricalc",OutFileName),quote=FALSE,col.names=FALSE,row.names=FALSE,sep=",")
 }
