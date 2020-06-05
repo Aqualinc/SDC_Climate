@@ -23,8 +23,8 @@ DataDirectory <- ("D:\\Projects\\Aqualinc\\projects\\SDC 2020\\Data") #Copies on
 
 #Set scenario type
 #scenario <- "DeTrended"
-#scenario <- "GCCModel"
-scenario <- "Extrapolate"
+scenario <- "GCCModel"
+#scenario <- "Extrapolate"
 #scenario <- "StatusQuo"
 if (scenario == "StatusQuo") DataSubdirectory <- DataSubdirectory <- "StationData" else DataSubdirectory <- file.path("AdjustedStationData",scenario)
 
